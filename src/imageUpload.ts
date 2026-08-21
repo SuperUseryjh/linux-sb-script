@@ -2,6 +2,7 @@ import { settings, ui } from './state';
 import { IMGUR_PRESET, CATBOX_PRESET, NODEIMAGE_PRESET, POSTIMAGES_PRESET, FREEIMAGE_PRESET } from './constants';
 import { persistSettings } from './settings';
 import { showStatus } from './status';
+import { reportError } from './errorHandler';
 
 const imageUploadBusyEditors = new WeakSet();
 let dragProfileIndex = -1; // 拖动排序时记录被拖条目的原始下标
@@ -382,9 +383,8 @@ function uploadImageFiles(editor: any, files: any[]) {
         showStatus('已插入 ' + uploaded + ' 张图片');
     }).catch(function (error) {
         const message = '图片上传失败：' + getUploadErrorMessage(error);
-        console.error('[LSB 图床上传] 上传失败:', error);
         showStatus(message);
-        showUploadErrorDialog(message);
+        reportError(error, '图床上传', '图片上传失败');
     }).finally(function () {
         imageUploadBusyEditors.delete(editor);
         setImageUploadButtonState(editor, '上传图片', false);
@@ -635,16 +635,16 @@ function sendUploadRequest(profile: any, headers: any, data: any, forceFetch: bo
                     try {
                         resolve(resolveUploadedImageUrl(parseUploadResponse(response.response, response.responseText), profile));
                     } catch (error) {
-                        console.error('[LSB 图床上传] 解析上传结果失败:', error);
+                        console.warn('[LSB 图床上传] 解析上传结果失败（failover 尝试下一个）:', error);
                         reject(error);
                     }
                 },
                 onerror: function (error: any) {
-                    console.error('[LSB 图床上传] GM_xmlhttpRequest onerror:', error);
+                    console.warn('[LSB 图床上传] GM_xmlhttpRequest onerror（failover 尝试下一个）:', error);
                     reject(new Error('网络或跨域请求失败'));
                 },
                 ontimeout: function () {
-                    console.error('[LSB 图床上传] GM_xmlhttpRequest 超时(60s)');
+                    console.warn('[LSB 图床上传] GM_xmlhttpRequest 超时(60s)（failover 尝试下一个）');
                     reject(new Error('请求超时'));
                 }
             });
@@ -666,7 +666,7 @@ function sendUploadRequest(profile: any, headers: any, data: any, forceFetch: bo
         console.log('[LSB 图床上传] fetch 响应(前300字符) =', String(text).slice(0, 300));
         return resolveUploadedImageUrl(parseUploadResponse(null, text), profile);
     }).catch(function (error) {
-        console.error('[LSB 图床上传] fetch 请求失败:', error);
+        console.warn('[LSB 图床上传] fetch 请求失败（failover 尝试下一个）:', error);
         throw error;
     });
 }
@@ -867,51 +867,4 @@ function setImageUploadButtonState(editor: any, text: string, disabled: boolean)
 function getUploadErrorMessage(error: any) {
     const message = error && error.message ? String(error.message) : '未知错误';
     return message.slice(0, 120);
-}
-
-// 上传失败时弹出居中提示框，避免用户需要去控制台翻日志
-function showUploadErrorDialog(message: string) {
-    if (document.getElementById('lsb-upload-error-dialog')) {
-        return;
-    }
-
-    const dialog = document.createElement('div');
-    dialog.id = 'lsb-upload-error-dialog';
-    dialog.setAttribute('role', 'alertdialog');
-    dialog.setAttribute('aria-label', '图片上传失败');
-    dialog.style.cssText = [
-        'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);',
-        'z-index: 2147483647; width: min(380px, calc(100vw - 32px));',
-        'padding: 18px 20px; box-sizing: border-box;',
-        'background: var(--panel, #1b1b1b); color: var(--text, #eeeeee);',
-        'border: 1px solid var(--danger, #e28b8b); border-radius: 12px;',
-        'box-shadow: 0 18px 46px var(--shadow-medium, rgba(0,0,0,.48));',
-        'font: 13px/1.5 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;',
-        'text-align: center;'
-    ].join(' ');
-
-    const title = document.createElement('div');
-    title.textContent = '图片上传失败';
-    title.style.cssText = 'font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--danger, #e28b8b);';
-
-    const content = document.createElement('div');
-    content.textContent = message;
-    content.style.cssText = 'color: var(--text-muted, #b6b6b6); margin-bottom: 16px; word-break: break-all;';
-
-    const okBtn = document.createElement('button');
-    okBtn.type = 'button';
-    okBtn.textContent = '知道了';
-    okBtn.style.cssText = [
-        'width: 100%; padding: 9px 12px; border: 0; border-radius: 8px;',
-        'background: var(--brand, #b8b8b8); color: #111; font: inherit; font-weight: 600; cursor: pointer;'
-    ].join(' ');
-    okBtn.addEventListener('click', function () {
-        dialog.remove();
-    });
-
-    dialog.appendChild(title);
-    dialog.appendChild(content);
-    dialog.appendChild(okBtn);
-    document.body.appendChild(dialog);
-    okBtn.focus();
 }

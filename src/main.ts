@@ -9,6 +9,7 @@ import { scheduleFilter } from './filters';
 import { updateImageLightboxTargets } from './lightbox';
 import { updateImageUploadTargets } from './imageUpload';
 import { checkUpdate } from './checkUpdate';
+import { initErrorHandler } from './errorHandler';
 
 let homeObserver: any = null;
 
@@ -97,6 +98,7 @@ function startHomeObserver() {
 
 // 启动时加载已保存的设置到全局 settings 对象
 Object.assign(settings, loadSettings());
+initErrorHandler();
 addStyle(buildStartupCss(settings) + '\n' + BASE_CSS);
 applySettings();
 startHomeObserver();

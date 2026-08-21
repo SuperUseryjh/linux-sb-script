@@ -90,6 +90,16 @@ declare global {
     const GM_registerMenuCommand: (name: string, fn: () => void) => void;
     const GM_xmlhttpRequest: (details: any) => void;
     const GM_openInTab: (url: string, open_in_background?: boolean) => void;
+    const GM_notification: (details: {
+        title?: string;
+        text?: string;
+        image?: string;
+        highlight?: boolean;
+        timeout?: number;
+        silent?: boolean;
+        onclick?: () => void;
+        ondone?: () => void;
+    }) => void;
     const GM_info: {
         script: {
             version: string;

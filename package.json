@@ -1,6 +1,6 @@
 {
   "name": "linux-sb-enhance-script",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "LINUX.SB 布局优化与功能增强油猴脚本",
   "main": "dist/linux-sb-enhance.user.js",
   "userscript": {
@@ -19,7 +19,8 @@
       "GM_registerMenuCommand",
       "GM_xmlhttpRequest",
       "GM_info",
-      "GM_openInTab"
+      "GM_openInTab",
+      "GM_notification"
     ],
     "connect": [
       "*"
@@ -38,7 +39,7 @@
     "tampermonkey",
     "linux.sb"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0",
   "devDependencies": {
     "typescript": "^5.0.0",
     "esbuild": "^0.20.0"

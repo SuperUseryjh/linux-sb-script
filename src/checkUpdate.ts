@@ -36,11 +36,11 @@ export function checkUpdate() {
                     console.log('[LSB] 当前已是最新版本。');
                 }
             } catch (error) {
-                console.error('[LSB] 解析更新信息失败:', error);
+                console.warn('[LSB] 解析更新信息失败（下次启动重试）:', error);
             }
         },
         onerror: function (response: any) {
-            console.error('[LSB] 检查更新失败:', response.status, response.statusText);
+            console.warn('[LSB] 检查更新失败（下次启动重试）:', response.status, response.statusText);
         }
     });
 }
