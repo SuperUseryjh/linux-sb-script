@@ -1,0 +1,98 @@
+name: 编译并发布油猴脚本
+
+on:
+  push:
+    branches:
+      - '**' # 允许所有分支触发
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出仓库
+      uses: actions/checkout@v4
+
+    - name: 安装 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 安装依赖
+      run: npm install
+
+    - name: 运行构建
+      run: npm run build
+
+    - name: 获取版本信息
+      id: get_version
+      run: |
+        FULL_VERSION=$(node -p "require('./package.json').version")
+        echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+
+        # 检查版本号是否为 <数字>.<数字>.<数字> 的标准格式
+        if [[ "$FULL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          IS_STANDARD_VERSION="true"
+        else
+          IS_STANDARD_VERSION="false"
+        fi
+        echo "is_standard_version=$IS_STANDARD_VERSION" >> $GITHUB_OUTPUT
+
+        # 检查是否为预发布版本（包含字母或连字符）
+        if [[ "$FULL_VERSION" =~ [a-zA-Z-] ]]; then
+          IS_PRERELEASE="true"
+        else
+          IS_PRERELEASE="false"
+        fi
+        echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+
+    - name: 创建 GitHub Release
+      id: create_release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.full_version }}
+        name: Release ${{ steps.get_version.outputs.full_version }}
+        draft: false
+        prerelease: ${{ steps.get_version.outputs.is_prerelease }}
+        files: ./dist/linux-sb-enhance.user.js
+
+    - name: 上传油猴脚本作为 Artifact
+      if: github.ref != 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-sb-enhance-script
+        path: ./dist/linux-sb-enhance.user.js
+
+    # ---- 推送产物到 static 仓库，供脚本远程更新使用 ----
+    - name: 检出 static 仓库
+      if: github.ref == 'refs/heads/main'
+      uses: actions/checkout@v4
+      with:
+        repository: SuperUseryjh/static
+        token: ${{ secrets.STATIC_REPO_TOKEN }} # 需要在仓库设置中配置此 Secret
+        path: static_repo
+
+    - name: 推送文件到 static 仓库
+      if: github.ref == 'refs/heads/main'
+      run: |
+        cd static_repo
+        if [ "${{ steps.get_version.outputs.is_standard_version }}" == "true" ]; then
+          echo "标准版本号，推送到 lsb/pub 目录"
+          mkdir -p lsb/pub
+          cp ../dist/linux-sb-enhance.user.js lsb/pub/linux-sb-enhance.user.js
+          cp ../package.json lsb/pub/version.json
+        else
+          echo "非标准版本号，推送到 lsb/perv 目录"
+          mkdir -p lsb/perv
+          cp ../dist/linux-sb-enhance.user.js lsb/perv/linux-sb-enhance.user.js
+          cp ../package.json lsb/perv/version.json
+        fi
+
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Update linux-sb-enhance.user.js and version.json for ${{ steps.get_version.outputs.full_version }}"
+        git push

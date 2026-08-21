@@ -1,0 +1,46 @@
+{
+  "name": "linux-sb-enhance-script",
+  "version": "2.0.0",
+  "description": "LINUX.SB 布局优化与功能增强油猴脚本",
+  "main": "dist/linux-sb-enhance.user.js",
+  "userscript": {
+    "name": "LINUX.SB-Enhance-Script",
+    "namespace": "https://linux.sb/",
+    "description": "布局优化与功能增强脚本，包含主题布局、内容过滤、图片灯箱、可配置图床上传、自动签到、首页身份、UID、侧栏常驻版块列表与头像悬停基础资料卡。",
+    "author": "COMCOM + Incremental Marker & YaoOnion",
+    "match": [
+      "https://linux.sb/*",
+      "http://linux.sb/*"
+    ],
+    "grant": [
+      "GM_addStyle",
+      "GM_getValue",
+      "GM_setValue",
+      "GM_registerMenuCommand",
+      "GM_xmlhttpRequest",
+      "GM_info",
+      "GM_openInTab"
+    ],
+    "connect": [
+      "*"
+    ],
+    "run-at": "document-start",
+    "license": "MIT",
+    "downloadURL": "https://static.yaoonion.fun/lsb/pub/linux-sb-enhance.user.js",
+    "updateURL": "https://static.yaoonion.fun/lsb/pub/linux-sb-enhance.user.js"
+  },
+  "scripts": {
+    "build": "tsc && node scripts/bundle.js && node scripts/generate-userscript.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "userscript",
+    "tampermonkey",
+    "linux.sb"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "esbuild": "^0.20.0"
+  }
+}
