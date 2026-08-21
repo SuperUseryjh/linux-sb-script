@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    # 允许 GITHUB_TOKEN 创建 Release 并上传资产（否则报 403 Resource not accessible）
+    permissions:
+      contents: write
 
     steps:
     - name: 检出仓库
