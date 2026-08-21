@@ -8,6 +8,7 @@ import { applyFilters } from './filters';
 import { applyAutoCheckin } from './autoCheckin';
 import { applyImageLightbox } from './lightbox';
 import { applyImageUpload, syncImageUploadControls, applyProviderPreset } from './imageUpload';
+import { applyRealtimeRefresh } from './realtime';
 
 let suppressToggleClick = false;
 let modalBackdrop: any = null;
@@ -66,6 +67,11 @@ export function ensureInterface() {
         '      <h2 class="lsb-section-title" id="lsb-home-title">首页设置</h2>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-personalized><span>启用首页个性化头图与搜索</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-post-new-window><span>帖子新窗口打开</span></label>',
+        '      <label class="lsb-check-line"><input type="checkbox" data-lsb-realtime-refresh><span>实时更新（通知与帖子）</span></label>',
+        '      <div class="lsb-range-line" data-lsb-realtime-interval-line>',
+        '        <label class="lsb-range-head"><span>轮询间隔（秒）</span><output data-lsb-realtime-interval-output></output></label>',
+        '        <input type="range" min="15" max="600" step="15" data-lsb-realtime-interval>',
+        '      </div>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-sidebar-swap><span>侧栏位置对调</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-identity-badges><span>身份标识美化</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-uid-badges><span>UID 美化（与身份标识配套）</span></label>',
@@ -395,6 +401,24 @@ function bindInterfaceEvents() {
         settings.homePostNewWindow = event.target.checked;
         applyHomePostNewWindow();
         syncInterface();
+        persistSettings();
+    });
+
+    ui.panel.querySelector('[data-lsb-realtime-refresh]').addEventListener('change', function (event) {
+        settings.realtimeRefresh = event.target.checked;
+        applyRealtimeRefresh();
+        syncInterface();
+        persistSettings();
+        showStatus('设置已保存');
+    });
+
+    ui.panel.querySelector('[data-lsb-realtime-interval]').addEventListener('input', function (event) {
+        settings.realtimeRefreshInterval = Number(event.target.value);
+        ui.panel.querySelector('[data-lsb-realtime-interval-output]').textContent = String(event.target.value);
+        // 轮询已开启时按新间隔重启
+        if (settings.realtimeRefresh) {
+            applyRealtimeRefresh();
+        }
         persistSettings();
     });
 
@@ -737,6 +761,11 @@ function syncInterface() {
     ui.panel.querySelector('[data-lsb-theme]').value = settings.theme;
     ui.panel.querySelector('[data-lsb-home-personalized]').checked = settings.homePersonalized;
     ui.panel.querySelector('[data-lsb-home-post-new-window]').checked = settings.homePostNewWindow;
+    ui.panel.querySelector('[data-lsb-realtime-refresh]').checked = settings.realtimeRefresh;
+    const realtimeInterval = ui.panel.querySelector('[data-lsb-realtime-interval]') as HTMLInputElement;
+    realtimeInterval.value = String(settings.realtimeRefreshInterval);
+    ui.panel.querySelector('[data-lsb-realtime-interval-output]').textContent = String(settings.realtimeRefreshInterval);
+    (ui.panel.querySelector('[data-lsb-realtime-interval-line]') as HTMLElement).style.display = settings.realtimeRefresh ? '' : 'none';
     ui.panel.querySelector('[data-lsb-home-sidebar-swap]').checked = settings.sidebarSwap;
     ui.panel.querySelector('[data-lsb-identity-badges]').checked = settings.identityBadges;
     ui.panel.querySelector('[data-lsb-uid-badges]').checked = settings.uidBadges;

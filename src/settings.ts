@@ -3,6 +3,7 @@ import { STORAGE_KEY, SETTINGS_VERSION, DEFAULTS, RANGE_DEFINITIONS, THEMES, TEX
 import { showStatus } from './status';
 import { applyTheme, setRootVariable } from './theme';
 import { applyHomePersonalization, applyHomePostNewWindow, applySidebarSwap, applyHomeMarkerEnhancements } from './home';
+import { applyRealtimeRefresh } from './realtime';
 import { enhanceSearchFields, enforceRadiusOverrides } from './search';
 import { applyFilters } from './filters';
 import { applyAutoCheckin } from './autoCheckin';
@@ -262,6 +263,7 @@ export function applySettings() {
     document.documentElement.setAttribute('data-lsb-ready', '');
     applyHomePersonalization();
     applyHomePostNewWindow();
+    applyRealtimeRefresh();
     applySidebarSwap();
     enhanceSearchFields(document);
     enforceRadiusOverrides();

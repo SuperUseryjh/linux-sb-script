@@ -63,6 +63,8 @@ export const DEFAULTS: Settings = {
     textColor: '#eeeeee',
     homePersonalized: false,
     homePostNewWindow: false,
+    realtimeRefresh: false,
+    realtimeRefreshInterval: 60,
     sidebarSwap: false,
     identityBadges: true,
     uidBadges: true,

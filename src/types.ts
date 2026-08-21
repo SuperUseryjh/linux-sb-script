@@ -14,6 +14,8 @@ export interface Settings {
     textColor: string;
     homePersonalized: boolean;
     homePostNewWindow: boolean;
+    realtimeRefresh: boolean;
+    realtimeRefreshInterval: number;
     sidebarSwap: boolean;
     identityBadges: boolean;
     uidBadges: boolean;
