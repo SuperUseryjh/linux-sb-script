@@ -3,7 +3,7 @@ import { BASE_CSS, THEMES } from './constants';
 import { hexToRgb, mixHex } from './theme';
 import { loadSettings, applySettings } from './settings';
 import { ensureInterface, setPanelOpen } from './interface';
-import { applyHomePersonalization, shouldRefreshHomeMarkerEnhancements, scheduleHomeMarkerEnhancements } from './home';
+import { applyHomePersonalization, applyHomePostNewWindow, shouldRefreshHomeMarkerEnhancements, scheduleHomeMarkerEnhancements } from './home';
 import { enhanceSearchFields, enforceRadiusOverrides } from './search';
 import { scheduleFilter } from './filters';
 import { updateImageLightboxTargets } from './lightbox';
@@ -82,6 +82,7 @@ function startHomeObserver() {
 
     homeObserver = new MutationObserver(function (mutations) {
         applyHomePersonalization();
+        applyHomePostNewWindow();
         enhanceSearchFields(document);
         enforceRadiusOverrides();
         scheduleFilter();

@@ -2,7 +2,7 @@ import { settings, ui } from './state';
 import { STORAGE_KEY, SETTINGS_VERSION, DEFAULTS, RANGE_DEFINITIONS, THEMES, TEXT_PALETTES, FREEIMAGE_PRESET } from './constants';
 import { showStatus } from './status';
 import { applyTheme, setRootVariable } from './theme';
-import { applyHomePersonalization, applySidebarSwap, applyHomeMarkerEnhancements } from './home';
+import { applyHomePersonalization, applyHomePostNewWindow, applySidebarSwap, applyHomeMarkerEnhancements } from './home';
 import { enhanceSearchFields, enforceRadiusOverrides } from './search';
 import { applyFilters } from './filters';
 import { applyAutoCheckin } from './autoCheckin';
@@ -116,6 +116,7 @@ export function normalizeSettings(value: any): any {
     }
 
     result.homePersonalized = result.homePersonalized === true || result.homePersonalized === 'true';
+    result.homePostNewWindow = result.homePostNewWindow === true || result.homePostNewWindow === 'true';
     result.sidebarSwap = result.sidebarSwap === true || result.sidebarSwap === 'true';
     result.identityBadges = result.identityBadges === true || result.identityBadges === 'true';
     result.uidBadges = result.uidBadges === true || result.uidBadges === 'true';
@@ -260,6 +261,7 @@ export function applySettings() {
     applyTheme();
     document.documentElement.setAttribute('data-lsb-ready', '');
     applyHomePersonalization();
+    applyHomePostNewWindow();
     applySidebarSwap();
     enhanceSearchFields(document);
     enforceRadiusOverrides();

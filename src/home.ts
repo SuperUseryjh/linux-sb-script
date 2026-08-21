@@ -82,6 +82,41 @@ export function applyHomePersonalization() {
     forumLayout.classList.add('lsb-home-personalized-layout');
 }
 
+// 首页帖子链接新窗口打开（开启时设 target=_blank，关闭时恢复原属性）
+export function applyHomePostNewWindow() {
+    if (!isHomePage()) {
+        return;
+    }
+
+    document.querySelectorAll('.post-item .post-title[href*="/topic/"], .post-item .topic-pages a[href*="/topic/"]').forEach(function (link: any) {
+        if (settings.homePostNewWindow) {
+            if (!link.hasAttribute('data-lsb-home-post-new-window')) {
+                link.setAttribute('data-lsb-home-post-original-target', link.hasAttribute('target') ? link.getAttribute('target') : '__lsb_none__');
+                link.setAttribute('data-lsb-home-post-original-rel', link.hasAttribute('rel') ? link.getAttribute('rel') : '__lsb_none__');
+                link.setAttribute('data-lsb-home-post-new-window', '1');
+            }
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+        } else if (link.hasAttribute('data-lsb-home-post-new-window')) {
+            const originalTarget = link.getAttribute('data-lsb-home-post-original-target');
+            const originalRel = link.getAttribute('data-lsb-home-post-original-rel');
+            if (originalTarget === '__lsb_none__') {
+                link.removeAttribute('target');
+            } else {
+                link.setAttribute('target', originalTarget);
+            }
+            if (originalRel === '__lsb_none__') {
+                link.removeAttribute('rel');
+            } else {
+                link.setAttribute('rel', originalRel);
+            }
+            link.removeAttribute('data-lsb-home-post-original-target');
+            link.removeAttribute('data-lsb-home-post-original-rel');
+            link.removeAttribute('data-lsb-home-post-new-window');
+        }
+    });
+}
+
 export function applySidebarSwap() {
     if (!isHomePage()) {
         return;

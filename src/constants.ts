@@ -62,6 +62,7 @@ export const DEFAULTS: Settings = {
     textPalette: 'neutral',
     textColor: '#eeeeee',
     homePersonalized: false,
+    homePostNewWindow: false,
     sidebarSwap: false,
     identityBadges: true,
     uidBadges: true,

@@ -3,7 +3,7 @@ import { DEFAULTS, RANGE_DEFINITIONS, THEMES, TEXT_PALETTES } from './constants'
 import { setStatusElement, showStatus } from './status';
 import { normalizeSettings, applySettings, persistSettings, scheduleSave, createImageUploadProfile } from './settings';
 import { findTextPalette } from './theme';
-import { applySidebarSwap, applyHomeMarkerEnhancements } from './home';
+import { applySidebarSwap, applyHomePostNewWindow, applyHomeMarkerEnhancements } from './home';
 import { applyFilters } from './filters';
 import { applyAutoCheckin } from './autoCheckin';
 import { applyImageLightbox } from './lightbox';
@@ -65,6 +65,7 @@ export function ensureInterface() {
         '    <section class="lsb-section" aria-labelledby="lsb-home-title">',
         '      <h2 class="lsb-section-title" id="lsb-home-title">首页设置</h2>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-personalized><span>启用首页个性化头图与搜索</span></label>',
+        '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-post-new-window><span>帖子新窗口打开</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-home-sidebar-swap><span>侧栏位置对调</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-identity-badges><span>身份标识美化</span></label>',
         '      <label class="lsb-check-line"><input type="checkbox" data-lsb-uid-badges><span>UID 美化（与身份标识配套）</span></label>',
@@ -386,6 +387,13 @@ function bindInterfaceEvents() {
     ui.panel.querySelector('[data-lsb-home-personalized]').addEventListener('change', function (event) {
         settings.homePersonalized = event.target.checked;
         applySettings();
+        syncInterface();
+        persistSettings();
+    });
+
+    ui.panel.querySelector('[data-lsb-home-post-new-window]').addEventListener('change', function (event) {
+        settings.homePostNewWindow = event.target.checked;
+        applyHomePostNewWindow();
         syncInterface();
         persistSettings();
     });
@@ -728,6 +736,7 @@ function syncInterface() {
 
     ui.panel.querySelector('[data-lsb-theme]').value = settings.theme;
     ui.panel.querySelector('[data-lsb-home-personalized]').checked = settings.homePersonalized;
+    ui.panel.querySelector('[data-lsb-home-post-new-window]').checked = settings.homePostNewWindow;
     ui.panel.querySelector('[data-lsb-home-sidebar-swap]').checked = settings.sidebarSwap;
     ui.panel.querySelector('[data-lsb-identity-badges]').checked = settings.identityBadges;
     ui.panel.querySelector('[data-lsb-uid-badges]').checked = settings.uidBadges;

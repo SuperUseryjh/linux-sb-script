@@ -13,6 +13,7 @@ export interface Settings {
     textPalette: string;
     textColor: string;
     homePersonalized: boolean;
+    homePostNewWindow: boolean;
     sidebarSwap: boolean;
     identityBadges: boolean;
     uidBadges: boolean;
